@@ -17,7 +17,7 @@ import FindPwAction from './src/actions/FindPwAction';
 
 import SettingsAction from './src/actions/SettingsAction'
 import ReNameAction from './src/actions/ReNameAction'
-import UploadImageAction from './src/actions/UploadImageAction'
+// import UploadImageAction from './src/actions/UploadImageAction'
 
 import WithdrawlAction from './src/actions/WithdrawlAction'
 

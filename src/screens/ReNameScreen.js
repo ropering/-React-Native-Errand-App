@@ -8,80 +8,43 @@ import Container from '../components/Container';
 import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
 
 export default ReNameScreen = (props) => {
+    console.log('이름 수정 페이지 입니다');
     const [name, setName] = useState('');
     return (
         <Container>
-            <View style={props.menustyle}>
-                <Menu
-                    ref={(ref) => (_menu = ref)}
-                    button={
-                    props.isIcon ? (
-                        <TouchableOpacity onPress={() => _menu.show()}>
-                        <Image
-                            source={{
-                            uri:
-                                'https://reactnativecode.com/wp-content/uploads/2020/12/menu_icon.png',
-                            }}
-                            style={{width: 30, height: 30}}
-                        />
-                        </TouchableOpacity>
-                    ) : (
-                        <Text
-                        onPress={() => _menu.show()}
-                        >
-                        aa
-                        </Text>
-                    )
-                    }>
-                    <MenuItem onPress={() => {Alert.alert('PopUp Menu Button Clicked...')}}>
-                    Menu Item 1
-                    </MenuItem>
-            
-                    <MenuItem disabled>Disabled Menu Item 2</MenuItem>
-            
-                    <MenuDivider />
-            
-                    <MenuItem onPress={() => {Alert.alert('PopUp Menu Button Clicked...')}}>
-                    Menu Item 3
-                    </MenuItem>
-            
-                </Menu>
+            <View style={styles.titleWrapper}>
+                <Text style={styles.title}>Change{"\n"}Name?</Text>
+                <Text style={styles.textArea}>변경할 이름을 입력해주세요.{"\n"}</Text>
+            </View>
+            <View style={styles.inputWrapper}>
+                <TextInput 
+                    style={styles.input}
+                    placeholder="Name"
+                    value={name}
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    onChangeText={text => {setName(text)}}
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => {props.changeName(name)}}
+                    selectionColor="#292929"
+                    // react-native-paper
+                    activeUnderlineColor='#53B77C'
+                    left={<TextInput.Icon name={() => <Icon name="email" size={20} color="#53B77C" />} />}
+                />
+                <Text style={{
+                    fontSize: 14,
+                    // marginBottom: props.err ? 30 : 0, 
+                    // color: props.err.charAt(0) === "비" ? 'green' : 'red'
+                }}>
+                {props.err}
+                </Text>
+            </View>
+            <View style={styles.buttonWrapper}>
+                <TouchableOpacity style={styles.squareButton} onPress={() => {props.changeName(name)}}>
+                    <Text style={styles.squareButtonText}>{name && !props.err ? "전송" : "이름 변경하기"}</Text>
+                </TouchableOpacity>
             </View>
         </Container>
-        // <Container>
-        //     <View style={styles.titleWrapper}>
-        //         <Text style={styles.title}>Change{"\n"}Name?</Text>
-        //         <Text style={styles.textArea}>변경할 이름을 입력해주세요.{"\n"}</Text>
-        //     </View>
-        //     <View style={styles.inputWrapper}>
-        //         <TextInput 
-        //             style={styles.input}
-        //             placeholder="Name"
-        //             value={name}
-        //             autoCapitalize='none'
-        //             autoCorrect={false}
-        //             onChangeText={text => {setName(text)}}
-        //             blurOnSubmit={false}
-        //             onSubmitEditing={() => {props.changeName(name)}}
-        //             selectionColor="#292929"
-        //             // react-native-paper
-        //             activeUnderlineColor='#53B77C'
-        //             left={<TextInput.Icon name={() => <Icon name="email" size={20} color="#53B77C" />} />}
-        //         />
-        //         <Text style={{
-        //             fontSize: 14,
-        //             // marginBottom: props.err ? 30 : 0, 
-        //             // color: props.err.charAt(0) === "비" ? 'green' : 'red'
-        //         }}>
-        //         {props.err}
-        //         </Text>
-        //     </View>
-        //     <View style={styles.buttonWrapper}>
-        //         <TouchableOpacity style={styles.squareButton} onPress={() => {props.changeName(name)}}>
-        //             <Text style={styles.squareButtonText}>{name && !props.err ? "전송" : "이름 변경하기"}</Text>
-        //         </TouchableOpacity>
-        //     </View>
-        // </Container>
     )
 }
 

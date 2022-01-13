@@ -54,7 +54,7 @@ export default ReNameAction = (props) => {
     }
 
     return <ReNameScreen
-        navi = {props.navigation} 
+        // navi = {props.navigation} 
         err = {err}
         changeName = {changeName}
         />
