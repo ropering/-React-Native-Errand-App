@@ -70,7 +70,6 @@ export default SettingsScreen = (props) => {
   const { avatar, name, email, nickname} = props
 
   const [visible, setVisible] = useState(false);
-  const [cameraVisible, setCameraVisible] = useState(false);
   
   const hideMenu = () => setVisible(false);
   const showMenu = () => setVisible(true);
@@ -95,16 +94,13 @@ export default SettingsScreen = (props) => {
         />}
       >
       <TouchableOpacity onPress= { () => {setVisible(true)}}>
-        
         <View style={styles.userRow}>
           <View style={styles.userImage}>
-            <TouchableOpacity onPress={ () => {setCameraVisible(true)} }>
               <Avatar
                 rounded
                 size="large"
                 source={{uri: props.url}}
               />
-            </TouchableOpacity>
           </View>
           <View>
             <Text style={{ fontSize: 16 }}>{nickname}</Text>
