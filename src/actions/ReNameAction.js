@@ -31,6 +31,7 @@ export default ReNameAction = (props) => {
                 else if(!nicknameReg.test(nickname)){
                     console.log('글자 수 (2~20자 이내)');
                 }else {
+                    // firestore에 존재하는 nickname 변경
                     firestore()
                         .collection('Users')
                         .doc(auth().currentUser.email)
@@ -41,16 +42,18 @@ export default ReNameAction = (props) => {
                             console.log('이름 변경완료');
                         })
                         .catch(err => {console.log(err)})
+                    
+                    // auth에 존재하는 nickname 변경
+                    auth()
+                    .currentUser
+                    .updateProfile({
+                        displayName: nickname
+                    })
+                    .then(() => {console.log('success')})
                 }
             }
         })
-        // auth에 존재하는 nickname 변경
-        auth()
-            .currentUser
-            .updateProfile({
-                displayName: nickname
-            })
-            .then(() => {console.log('success')})
+        
     }
 
     return <ReNameScreen

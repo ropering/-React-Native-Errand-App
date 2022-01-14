@@ -1,272 +1,331 @@
 import React, { Component, useState, useEffect, useCallback } from 'react'
-import { ScrollView, Switch, StyleSheet, Text, View, LogBox, RefreshControl } from 'react-native'
+import { SafeAreaView, ScrollView, Switch, StyleSheet, Text, View, LogBox, RefreshControl, TouchableOpacity } from 'react-native'
+// Settings UI
 import { Avatar, ListItem } from 'react-native-elements'
-import PropTypes from 'prop-types'
-
 import BaseIcon from './Icon'
 import Chevron from './Chevron'
 import InfoText from './InfoText'
 import WithdrawlAction from '../actions/WithdrawlAction'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-
-// import {UploadImageAction} from '../actions/UploadImageAction'
-// import {CameraAction} from '../actions/CameraAction'
-
-import { Menu, MenuItem, MenuDivider } from 'react-native-material-menu';
-import { Button } from 'react-native-paper'
-
-import storage from '@react-native-firebase/storage';
-import auth from '@react-native-firebase/auth';
-
-
+// Edit profile menu
+import { BottomSheet } from 'react-native-btr';
+// Ignore Warnings
 LogBox.ignoreLogs(['Warning: ...']);
-
-
-const styles = StyleSheet.create({
-  scroll: {
-    backgroundColor: 'white',
-  },
-  userRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingBottom: 8,
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 6,
-  },
-  userImage: {
-    marginRight: 12,
-  },
-  listItemContainer: {
-    height: 55,
-    borderWidth: 0.5,
-    borderColor: '#ECECEC',
-  },
-})
+// Main
 export default SettingsScreen = (props) => {
-  console.log('설정 페이지 화면입니다')
-  propTypes = {
-    avatar: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    navigation: PropTypes.object.isRequired,
-    emails: PropTypes.arrayOf(
-      PropTypes.shape({
-        email: PropTypes.string.isRequired,
-      })
-    ).isRequired,
-  }
+    console.log('설정 페이지 화면입니다')
+    // update profile img (run 2 more times)
+    props.downloadImg();
 
-  state = {
-    pushNotifications: true,
-  }
-  onChangePushNotifications = () => {
-    setState(state => ({
-      pushNotifications: !state.pushNotifications,
-    }))
-  }
-  const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [transferred, setTransferred] = useState(0);
-  const { avatar, name, email, nickname} = props
+    state = {
+        pushNotifications: true,
+    }
+    onChangePushNotifications = () => {
+        setState(state => ({
+        pushNotifications: !state.pushNotifications,
+        }))
+    }
+    
+    // refresh control
+    const wait = (timeout) => {
+        return new Promise(resolve => setTimeout(resolve, timeout));
+    }
+    const onRefresh = useCallback(() => {
+        props.updateNickname(); // 프로필 닉네임 업데이트
+        setRefreshing(true);
+        wait(2000).then(() => setRefreshing(false));
+    }, [])
+    const [refreshing, setRefreshing] = useState(false);
 
-  const [visible, setVisible] = useState(false);
-  
-  const hideMenu = () => setVisible(false);
-  const showMenu = () => setVisible(true);
+    // 프로필 수정 메뉴 (Bottom sheet)
+    const [menuVisible, menuSetVisible] = useState(false);
+    const toggleBottomNavigationView = () => {
+        menuSetVisible(!menuVisible);
+    };
 
-
-  const wait = (timeout) => {
-    return new Promise(resolve => setTimeout(resolve, timeout));
-  }
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    wait(2000).then(() => setRefreshing(false));
-  }, [])
-
-  return (
-    <ScrollView style={styles.scroll} 
-      refreshControl = {
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />}
-      >
-      <TouchableOpacity onPress= { () => {setVisible(true)}}>
-        <View style={styles.userRow}>
-          <View style={styles.userImage}>
-              <Avatar
-                rounded
-                size="large"
-                source={{uri: props.url}}
-              />
-          </View>
-          <View>
-            <Text style={{ fontSize: 16 }}>{nickname}</Text>
-            <Text
-              style={{
-                color: 'gray',
-                fontSize: 16,
-              }}
-            >
-              {email}
-            </Text>
-          </View>
-          <View style={{textAlign: 'right', padding: 40}}>
-            <Chevron  />
-          </View>
-        </View>
+    return (
+        <ScrollView style={styles.scroll}
+            refreshControl={
+                <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                />
+            }
+        >
+            <SafeAreaView style={styles.container}>
+                <View style={styles.container}>
+                    <BottomSheet
+                        visible={menuVisible}
+                        onBackButtonPress={toggleBottomNavigationView}
+                        onBackdropPress={toggleBottomNavigationView}
+                    >
+                        {/*Bottom Sheet inner View*/}
+                    <View style={styles.panel}>
+                        <View style={{alignItems: 'center'}}>
+                            <Text style={styles.panelTitle}>프로필 수정</Text>
+                            <Text style={styles.panelSubtitle}>버튼을 눌러 선택하세요!</Text>
+                        </View>
+                        <TouchableOpacity style={styles.panelButton} onPress={() => props.navi.navigate('ReName')}>
+                            <Text style={styles.panelButtonTitle}>이름 수정</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromCamera()}}>
+                            <Text style={styles.panelButtonTitle}>카메라</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromAlbum()}}>
+                            <Text style={styles.panelButtonTitle}>앨범에서 가져오기</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.panelButton}
+                            onPress={toggleBottomNavigationView}>
+                            <Text style={styles.panelButtonTitle}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </BottomSheet>
+                </View>
+            </SafeAreaView>
+            
+            <TouchableOpacity onPress={toggleBottomNavigationView}>
+                <View style={styles.userRow}>
+                <View style={styles.userImage}>
+                    <Avatar
+                        rounded
+                        size="large"
+                        source={{uri: props.url}}
+                    />
+                </View>
+                <View>
+                    <Text style={{ fontSize: 16 }}>{props.nickname}</Text>
+                    <Text
+                    style={{
+                        color: 'gray',
+                        fontSize: 16,
+                    }}
+                    >
+                    {props.email}
+                    </Text>
+                </View>
+                <View style={{textAlign: 'right', padding: 40}}>
+                    <Chevron  />
+                </View>
+                </View>
+                
+                
+            </TouchableOpacity>
         
-        {visible && 
-          <Menu
-            visible={visible}
-            anchor={<Text onPress={showMenu}></Text>}
-            onRequestClose={hideMenu}
-          >
-            <MenuItem onPress={() => {props.importFromCamera()}}>사진 촬영</MenuItem>
-            <MenuItem onPress={() => {props.importFromAlbum()}}>앨범에서 사진 선택</MenuItem>
-            <MenuItem onPress={() => props.navi.navigate('ReName')}>이름 수정</MenuItem>
-            {/* <MenuItem disabled>Disabled item</MenuItem> */}
-            {/* <MenuDivider /> */}
-          </Menu>}
-      </TouchableOpacity>
-  
-      
-      <InfoText text="Account" />
-      <View>
-        <ListItem
-          hideChevron
-          title="알림 설정"
-          containerStyle={styles.listItemContainer}
-          rightElement={
-            <Switch
-              onValueChange={onChangePushNotifications}
-              value={state.pushNotifications}
-            />
-          }
-          leftIcon={
-            <BaseIcon
-              containerStyle={{
-                backgroundColor: '#FFADF2',
-              }}
-              icon={{
-                type: 'material',
-                name: 'notifications',
-              }}
-            />
-          }
-        />
-        <ListItem
-          title="비밀번호 수정"
-          rightTitleStyle={{ fontSize: 15 }}
-          onPress={() => props.navi.navigate('FindPw')}
-          containerStyle={styles.listItemContainer}
-          leftIcon={
-            <BaseIcon
-              containerStyle={{ backgroundColor: '#FEA8A1' }}
-              icon={{
-                type: 'material',
-                name: 'language',
-              }}
-            />
-          }
-          rightIcon={<Chevron />}
-        />
-        <ListItem
-          title="회원 탈퇴"
-          rightTitleStyle={{ fontSize: 15 }}
-          onPress={() => WithdrawlAction()}
-          containerStyle={styles.listItemContainer}
-          leftIcon={
-            <BaseIcon
-              containerStyle={{ backgroundColor: '#FEA8A1' }}
-              icon={{
-                type: 'material',
-                name: 'language',
-              }}
-            />
-          }
-          rightIcon={<Chevron />}
-        />
-      </View>
-      <InfoText text="More" />
-      <View>
-        <ListItem
-          title="About US"
-          onPress={() => onPressSetting()}
-          containerStyle={styles.listItemContainer}
-          leftIcon={
-            <BaseIcon
-              containerStyle={{ backgroundColor: '#A4C8F0' }}
-              icon={{
-                type: 'ionicon',
-                name: 'md-information-circle',
-              }}
-            />
-          }
-          rightIcon={<Chevron />}
-        />
-        <ListItem
-          title="Share our App"
-          onPress={() => onPressSetting()}
-          containerStyle={styles.listItemContainer}
-          leftIcon={
-            <BaseIcon
-              containerStyle={{
-                backgroundColor: '#C47EFF',
-              }}
-              icon={{
-                type: 'entypo',
-                name: 'share',
-              }}
-            />
-          }
-          rightIcon={<Chevron />}
-        />
-        <ListItem
-          title="Rate Us"
-          onPress={() => onPressSetting()}
-          containerStyle={styles.listItemContainer}
-          leftIcon={
-            <BaseIcon
-              containerStyle={{
-                backgroundColor: '#FECE44',
-              }}
-              icon={{
-                type: 'entypo',
-                name: 'star',
-              }}
-            />
-          }
-          rightIcon={<Chevron />}
-        />
-        <ListItem
-          title="Send FeedBack"
-          onPress={() => onPressSetting()}
-          containerStyle={styles.listItemContainer}
-          badge={{
-            value: 123,
-            textStyle: { fontSize: 14, color: 'white' },
-          }}
-          leftIcon={
-            <BaseIcon
-              containerStyle={{
-                backgroundColor: '#00C001',
-              }}
-              icon={{
-                type: 'materialicon',
-                name: 'feedback',
-              }}
-            />
-          }
-          rightIcon={<Chevron />}
-        />
-      </View>
-    </ScrollView>
-  )
+            
+            <InfoText text="Account" />
+            <View>
+                <ListItem
+                hideChevron
+                title="알림 설정"
+                containerStyle={styles.listItemContainer}
+                rightElement={
+                    <Switch
+                    onValueChange={onChangePushNotifications}
+                    value={state.pushNotifications}
+                    />
+                }
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{
+                        backgroundColor: '#FFADF2',
+                    }}
+                    icon={{
+                        type: 'material',
+                        name: 'notifications',
+                    }}
+                    />
+                }
+                />
+                <ListItem
+                title="비밀번호 수정"
+                rightTitleStyle={{ fontSize: 15 }}
+                onPress={() => {setVisible(true)}}  //props.navi.navigate('FindPw')
+                containerStyle={styles.listItemContainer}
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{ backgroundColor: '#FEA8A1' }}
+                    icon={{
+                        type: 'material',
+                        name: 'language',
+                    }}
+                    />
+                }
+                rightIcon={<Chevron />}
+                />
+                <ListItem
+                title="회원 탈퇴"
+                rightTitleStyle={{ fontSize: 15 }}
+                onPress={() => WithdrawlAction()}
+                containerStyle={styles.listItemContainer}
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{ backgroundColor: '#FEA8A1' }}
+                    icon={{
+                        type: 'material',
+                        name: 'language',
+                    }}
+                    />
+                }
+                rightIcon={<Chevron />}
+                />
+            </View>
+            <InfoText text="More" />
+            <View>
+                <ListItem
+                title="About US"
+                onPress={() => onPressSetting()}
+                containerStyle={styles.listItemContainer}
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{ backgroundColor: '#A4C8F0' }}
+                    icon={{
+                        type: 'ionicon',
+                        name: 'md-information-circle',
+                    }}
+                    />
+                }
+                rightIcon={<Chevron />}
+                />
+                <ListItem
+                title="Share our App"
+                onPress={() => onPressSetting()}
+                containerStyle={styles.listItemContainer}
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{
+                        backgroundColor: '#C47EFF',
+                    }}
+                    icon={{
+                        type: 'entypo',
+                        name: 'share',
+                    }}
+                    />
+                }
+                rightIcon={<Chevron />}
+                />
+                <ListItem
+                title="Rate Us"
+                onPress={() => onPressSetting()}
+                containerStyle={styles.listItemContainer}
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{
+                        backgroundColor: '#FECE44',
+                    }}
+                    icon={{
+                        type: 'entypo',
+                        name: 'star',
+                    }}
+                    />
+                }
+                rightIcon={<Chevron />}
+                />
+                <ListItem
+                title="Send FeedBack"
+                onPress={() => onPressSetting()}
+                containerStyle={styles.listItemContainer}
+                badge={{
+                    value: 123,
+                    textStyle: { fontSize: 14, color: 'white' },
+                }}
+                leftIcon={
+                    <BaseIcon
+                    containerStyle={{
+                        backgroundColor: '#00C001',
+                    }}
+                    icon={{
+                        type: 'materialicon',
+                        name: 'feedback',
+                    }}
+                    />
+                }
+                rightIcon={<Chevron />}
+                />
+            </View>
+        </ScrollView>
+    )
 }
+const styles = StyleSheet.create({
+    panel: {
+        padding: 20,
+        backgroundColor: '#FFFFFF',
+        paddingTop: 20,
+        // borderTopLeftRadius: 20,
+        // borderTopRightRadius: 20,
+        // shadowColor: '#000000',
+        // shadowOffset: {width: 0, height: 0},
+        // shadowRadius: 5,
+        // shadowOpacity: 0.4,
+    },
+    panelHeader: {
+        alignItems: 'center',
+      },
+    panelHandle: {
+        width: 40,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#00000040',
+        marginBottom: 10,
+    },
+    panelTitle: {
+        fontSize: 27,
+        height: 35,
+    },
+    panelSubtitle: {
+        fontSize: 14,
+        color: 'gray',
+        height: 30,
+        marginBottom: 10,
+    },
+    panelButton: {
+        padding: 13,
+        borderRadius: 10,
+        backgroundColor: '#FF6347',
+        alignItems: 'center',
+        marginVertical: 7,
+    },
+    panelButtonTitle: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: 'white',
+    },
 
+
+    container: {
+        flex: 1,
+        margin: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#E0F7FA',
+    },
+    bottomNavigationView: {
+    backgroundColor: '#fff',
+    width: '100%',
+    height: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    },
+    
+    scroll: {
+        backgroundColor: 'white',
+    },
+    userRow: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        paddingBottom: 8,
+        paddingLeft: 15,
+        paddingRight: 15,
+        paddingTop: 6,
+    },
+    userImage: {
+        marginRight: 12,
+    },
+    listItemContainer: {
+        height: 55,
+        borderWidth: 0.5,
+        borderColor: '#ECECEC',
+    },
+})
 // class SettingsScreen extends Component {
 //   static propTypes = {
 //     avatar: PropTypes.string.isRequired,
