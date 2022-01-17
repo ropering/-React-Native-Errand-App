@@ -7,12 +7,10 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker'; // M
 
 export default SetingsActions = (props) => {
     console.log('설정 액션 화면입니다')
-
     let email = auth().currentUser.email
-    // let nickname = auth().currentUser.displayName
-    const [nickname, setNickname] = useState(auth().currentUser.displayName)
-
+    const [nickname, setNickname] = useState(null)
     const [url, setUrl] = useState(null)
+
 
     const nicknameReg  =  /^[\w\Wㄱ-ㅎㅏ-ㅣ가-힣]{2,20}$/
     const options = {
@@ -21,29 +19,75 @@ export default SetingsActions = (props) => {
         skipBackup: true,
         },
     };
-    
+    const withdrawal = () => {
+      const users = firestore().collection('Users').doc(email);
+      // firestore에서 삭제
+      users.delete()
+      .then(() => {
+        console.log('계정 삭제 완료')
+      })
+      .catch((err) => {
+        console.log('error :', err)
+      })
+      // authentification에서 삭제
+      var user = auth().currentUser;
+      console.log('탈퇴')
+      user.delete()
+      .then(() => {
+        console.log('계정이 삭제되었어요')
+      })
+      .catch((error) => {
+        console.log('error : ', error)
+      })
+    }
+
+
+        // let user = auth().currentUser
+
+        // user?.delete { error in
+        //   if let error = error {
+        //     // An error happened.
+        //   } else {
+        //     // Account deleted.
+        //   }
+        // }
+
+
+        // const auth = getAuth();
+        // const user = auth.currentUser;
+        
+        // deleteUser(user)
+        // .then(() => {
+        //     console.log('탈퇴되었습니다');
+        // })
+        // .catch((err) => {
+        //     console.log(err);
+        // })
+
+    // nickname 변수를 ReNameScreen에 전달해서 수정할 순 없을까? (그렇다면 refresh 없이도 자동 업데이트 가능)
+    // 사용 x
     const updateNickname = () => {
       // nickname = auth().currentUser.displayName
       // useEffect( () => {
-      setNickname(444)
-      // }, [])
+        setNickname(auth().currentUser.displayName)
+      // })
       console.log('닉네임 수정 완료', nickname)
     }
     
     const downloadImg = () => {
       // firebase에서 이미지 다운로드
-      useEffect(() => {
+      // useEffect(() => {
         // useEffect로 묶지 않으면 storage()부분을 2번 실행 (리소스 낭비)
         // useEffect()로 묶는 다면 한번만 실행되지만 에러 발생 (Invalid hook call)
         storage()
         .ref('Users/' + email) //name in storage in firebase console
         .getDownloadURL()
         .then((url) => {
-            console.log('이미지를 다운로드 하였습니다', url)
+            console.log('이미지를 다운로드 하였습니다')
             setUrl(url)
         })
         .catch((e) => console.log('Errors while downloading => ', e));
-      }, [])
+      // })
     }
 
     const importFromCamera = () => {
@@ -120,6 +164,7 @@ export default SetingsActions = (props) => {
                 importFromCamera = {importFromCamera}
                 updateNickname = {updateNickname}
                 downloadImg = {downloadImg}
+                withdrawal = {withdrawal}
 
             /> //{...contactData} {...props} 
 }

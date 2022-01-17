@@ -2,12 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-
 import ReNameScreen from '../screens/ReNameScreen';
-
-/*
-munmyeong1028@gmail.com
-*/
 
 const users = firestore().collection('Users');
 
@@ -49,7 +44,18 @@ export default ReNameAction = (props) => {
                     .updateProfile({
                         displayName: nickname
                     })
-                    .then(() => {console.log('success')})
+                    .then(() => {
+                        console.log('success')
+                        Alert.alert(
+                            "이름 변경",
+                            "이름 변경이 완료되었습니다.",
+                            [{
+                                text: "확인",
+                                onPress: () => props.navigation.navigate('Home'),
+                                style: "cancel",
+                            }],
+                        );
+                    })
                 }
             }
         })

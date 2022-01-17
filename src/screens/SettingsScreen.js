@@ -5,17 +5,50 @@ import { Avatar, ListItem } from 'react-native-elements'
 import BaseIcon from './Icon'
 import Chevron from './Chevron'
 import InfoText from './InfoText'
-import WithdrawlAction from '../actions/WithdrawlAction'
+// import withdrawalAction from '../actions/withdrawalAction'
 // Edit profile menu
 import { BottomSheet } from 'react-native-btr';
 // Ignore Warnings
 LogBox.ignoreLogs(['Warning: ...']);
+
+
+
+
+
 // Main
 export default SettingsScreen = (props) => {
     console.log('설정 페이지 화면입니다')
-    // update profile img (run 2 more times)
-    props.downloadImg();
+    const [refreshing, setRefreshing] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false); // edit profile Menu
+    const [withdrawalVisible, setwithdrawalVisible] = useState(false) // withdrawal Menu
+    // 최초 1번 프로필 업데이트
+    useEffect( () => {
+        props.updateNickname(); // 프로필 닉네임 업데이트
+        props.downloadImg();
+    }, [])
 
+    // refresh control
+    const wait = (timeout) => {
+        return new Promise(resolve => setTimeout(resolve, timeout));
+    }
+    const onRefresh = useCallback(() => {
+        props.updateNickname(); // 프로필 닉네임 업데이트
+        setRefreshing(true);
+        wait(300).then(() => setRefreshing(false));
+    }, [])
+
+    // 프로필 수정 메뉴 (Bottom sheet)
+    const toggleUpdateProfileView = () => {
+        setMenuVisible(!menuVisible);
+    };
+    // 회원 탈퇴 메뉴
+    const togglewithdrawalView = () => {
+        console.log(!withdrawalVisible)
+        setwithdrawalVisible(!withdrawalVisible)
+    };
+
+
+    // Notification settings
     state = {
         pushNotifications: true,
     }
@@ -25,23 +58,6 @@ export default SettingsScreen = (props) => {
         }))
     }
     
-    // refresh control
-    const wait = (timeout) => {
-        return new Promise(resolve => setTimeout(resolve, timeout));
-    }
-    const onRefresh = useCallback(() => {
-        props.updateNickname(); // 프로필 닉네임 업데이트
-        setRefreshing(true);
-        wait(2000).then(() => setRefreshing(false));
-    }, [])
-    const [refreshing, setRefreshing] = useState(false);
-
-    // 프로필 수정 메뉴 (Bottom sheet)
-    const [menuVisible, menuSetVisible] = useState(false);
-    const toggleBottomNavigationView = () => {
-        menuSetVisible(!menuVisible);
-    };
-
     return (
         <ScrollView style={styles.scroll}
             refreshControl={
@@ -53,37 +69,65 @@ export default SettingsScreen = (props) => {
         >
             <SafeAreaView style={styles.container}>
                 <View style={styles.container}>
+                    {/* Edit profile */}
                     <BottomSheet
                         visible={menuVisible}
-                        onBackButtonPress={toggleBottomNavigationView}
-                        onBackdropPress={toggleBottomNavigationView}
+                        onBackButtonPress={toggleUpdateProfileView}
+                        onBackdropPress={toggleUpdateProfileView}
                     >
-                        {/*Bottom Sheet inner View*/}
-                    <View style={styles.panel}>
-                        <View style={{alignItems: 'center'}}>
-                            <Text style={styles.panelTitle}>프로필 수정</Text>
-                            <Text style={styles.panelSubtitle}>버튼을 눌러 선택하세요!</Text>
+                        <View style={styles.panel}>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={styles.panelTitle}>Edit Profile</Text>
+                                <Text style={styles.panelSubtitle}>버튼을 눌러 선택하세요!</Text>
+                            </View>
+                            <TouchableOpacity style={styles.panelButton} onPress={() => props.navi.navigate('ReName')}>
+                                <Text style={styles.panelButtonTitle}>이름 수정</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromCamera()}}>
+                                <Text style={styles.panelButtonTitle}>카메라</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromAlbum()}}>
+                                <Text style={styles.panelButtonTitle}>앨범에서 가져오기</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.panelButton}
+                                onPress={toggleUpdateProfileView}>
+                                <Text style={styles.panelButtonTitle}>Cancel</Text>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style={styles.panelButton} onPress={() => props.navi.navigate('ReName')}>
-                            <Text style={styles.panelButtonTitle}>이름 수정</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromCamera()}}>
-                            <Text style={styles.panelButtonTitle}>카메라</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromAlbum()}}>
-                            <Text style={styles.panelButtonTitle}>앨범에서 가져오기</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.panelButton}
-                            onPress={toggleBottomNavigationView}>
-                            <Text style={styles.panelButtonTitle}>Cancel</Text>
-                        </TouchableOpacity>
-                    </View>
                     </BottomSheet>
+                </View>
+                <View style={styles.container}>
+                    <BottomSheet
+                            visible={withdrawalVisible}
+                            onBackButtonPress={togglewithdrawalView}
+                            onBackdropPress={togglewithdrawalView}
+                        >
+                            <View style={styles.panel}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={styles.panelTitle}>회원 탈퇴</Text>
+                                    <Text style={styles.panelSubtitle}>정말 탈퇴하시겠어요?</Text>
+                                </View>
+                                <TouchableOpacity style={styles.panelButton} onPress={() => props.withdrawal()}>
+                                    {/* props.withdrawal()  togglewithdrawalView */}
+                                    <Text style={styles.panelButtonTitle}>예</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.panelButton} onPress={() => togglewithdrawalView()}>
+                                    <Text style={styles.panelButtonTitle}>아니요</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </BottomSheet>
                 </View>
             </SafeAreaView>
             
-            <TouchableOpacity onPress={toggleBottomNavigationView}>
+
+            {/* <SafeAreaView style={styles.container}>
+                <View style={styles.container}>
+                    
+                </View>
+            </SafeAreaView> */}
+            
+            <TouchableOpacity onPress={toggleUpdateProfileView}>
                 <View style={styles.userRow}>
                 <View style={styles.userImage}>
                     <Avatar
@@ -139,7 +183,7 @@ export default SettingsScreen = (props) => {
                 <ListItem
                 title="비밀번호 수정"
                 rightTitleStyle={{ fontSize: 15 }}
-                onPress={() => {setVisible(true)}}  //props.navi.navigate('FindPw')
+                onPress={() => {props.navi.navigate('FindPw')}}
                 containerStyle={styles.listItemContainer}
                 leftIcon={
                     <BaseIcon
@@ -155,7 +199,7 @@ export default SettingsScreen = (props) => {
                 <ListItem
                 title="회원 탈퇴"
                 rightTitleStyle={{ fontSize: 15 }}
-                onPress={() => WithdrawlAction()}
+                onPress={togglewithdrawalView}
                 containerStyle={styles.listItemContainer}
                 leftIcon={
                     <BaseIcon
@@ -280,7 +324,7 @@ const styles = StyleSheet.create({
     panelButton: {
         padding: 13,
         borderRadius: 10,
-        backgroundColor: '#FF6347',
+        backgroundColor: '#53B77C',
         alignItems: 'center',
         marginVertical: 7,
     },

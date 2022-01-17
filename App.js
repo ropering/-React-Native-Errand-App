@@ -1,5 +1,6 @@
+// munmyeong1028@gmail.com
 import React, {useState} from 'react';
-import { Button, LogBox, Alert, Image, View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Button, LogBox, Alert, Image, View, Text, TouchableOpacity, SafeAreaView, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -21,90 +22,12 @@ import ReNameAction from './src/actions/ReNameAction'
 
 import WithdrawlAction from './src/actions/WithdrawlAction'
 
+import logo from './src/images/logo_2.png';
+
 // Ignore log notification by message
 LogBox.ignoreAllLogs();
-// bonoboss1028@student.anu.ac.kr
 
 const Stack = createStackNavigator();
-
-// const CustomMenu = (props) => {
-//   let _menu = null;
-//   // console.log(1)
-//   const [visible, setVisible] = useState(false);
-
-//   const hideMenu = () => setVisible(false);
-
-//   const showMenu = () => setVisible(true);
-//   return (
-
-//     <View style={{ height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-//       <Menu
-//         visible={visible}
-//         anchor={<Text onPress={showMenu}>Show menu</Text>}
-//         onRequestClose={hideMenu}
-//       >
-//         <MenuItem onPress={hideMenu}>Menu item 1</MenuItem>
-//         <MenuItem onPress={hideMenu}>Menu item 2</MenuItem>
-//         <MenuItem disabled>Disabled item</MenuItem>
-//         <MenuDivider />
-//         <MenuItem onPress={hideMenu}>Menu item 4</MenuItem>
-//       </Menu>
-//     </View>
-//   );
-// };
- 
-// const HomeScreen = ({navigation, route}) => {
-//   return (
-//     <SafeAreaView style={{flex: 1}}>
- 
-//       <View style={{flex: 1, padding: 16, justifyContent: 'center', alignItems: 'center'}}>
- 
-//           <Text style={{ fontSize: 24}}> Home Page </Text>
- 
-//       </View>
- 
-//     </SafeAreaView>
-//   );
-// };
-// function App() {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator
-//         initialRouteName="HomeScreen"
-//         screenOptions={({route, navigation}) => ({
-//           headerRight: () => (
-//             // <Button title="MyPage" onPress={console.log(1)}/>
-//             <CustomMenu
-//               menutext="Menu"
-//               menustyle={{marginRight: 14}}
-//               textStyle={{color: 'white'}}
-//               navigation={navigation}
-//               route={route}
-//               isIcon={true}
-//             />
-//           ),
-//         })}>
-//         <Stack.Screen
-//           name="HomeScreen"
-//           component={HomeScreen}
-//           options={{
-//             title: 'Home Page',
-//             headerStyle: {
-//               backgroundColor: '#00C853',
-//             },
-//             headerTintColor: '#fff',
-//             headerTitleStyle: {
-//               fontWeight: 'bold',
-//             },
-//           }}
-//         />
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-// }
- 
-// export default App;
-
 
 export default App = () => {
   return (
@@ -112,31 +35,41 @@ export default App = () => {
       <Stack.Navigator
         screenOptions={({route, navigation}) => ({
           headerRight: () => (
-            // <CustomMenu
-            //   menutext="Menu"
-            //   menustyle={{marginRight: 14}}
-            //   textStyle={{color: 'white'}}
-            //   navigation={navigation}
-            //   route={route}
-            //   isIcon={true}
-            // />
             <Button title="MyPage" onPress={() => navigation.navigate('Settings')} />
           )
       })}>
+        <Stack.Screen name="Login" component={LoginAction} />
         {/* <Stack.Screen name="Withdrawl" component={WithdrawlAction} /> */}
         <Stack.Screen name="Settings" component={SettingsAction} 
-          screenOptions={ ()  => ({
+          options={ ({navigation})  => ({
             headerRight: () => (
-              <Button>gd</Button>
-              )
+              <Button title="Home" onPress={() => navigation.navigate('Home')}/>
+            ),
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => {navigation.navigate('Home')}}>
+                <Image source={logo} style={styles.logo}/>
+              </TouchableOpacity>
+            ),
+            headerTitle: () => (<Text></Text>)
+            ,
+            // headerStyle: {
+            //   backgroundColor: '#53B77C'
+            // },
+            // headerTintColor: '#53B77C'
             })}
           />
-        <Stack.Screen name="Login" component={LoginAction} />
+        <Stack.Screen name="Register" component={RegisterAction} />
         <Stack.Screen name="ReName" component={ReNameAction} />
         <Stack.Screen name="Home" component={Mypage} options={{headerShown: false}} />
-        <Stack.Screen name="Register" component={RegisterAction} />
         <Stack.Screen name="FindPw" component={FindPwAction} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  logo: {
+    width: 120,
+    height: 120,
+  }
+})
