@@ -20,7 +20,6 @@ import SettingsAction from './src/actions/SettingsAction'
 import ReNameAction from './src/actions/ReNameAction'
 // import UploadImageAction from './src/actions/UploadImageAction'
 
-import WithdrawlAction from './src/actions/WithdrawlAction'
 
 import logo from './src/images/logo_2.png';
 
@@ -39,7 +38,6 @@ export default App = () => {
           )
       })}>
         <Stack.Screen name="Login" component={LoginAction} />
-        {/* <Stack.Screen name="Withdrawl" component={WithdrawlAction} /> */}
         <Stack.Screen name="Settings" component={SettingsAction} 
           options={ ({navigation})  => ({
             headerRight: () => (
