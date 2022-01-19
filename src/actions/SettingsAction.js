@@ -40,37 +40,10 @@ export default SetingsActions = (props) => {
         console.log('error : ', error)
       })
     }
-
-
-        // let user = auth().currentUser
-
-        // user?.delete { error in
-        //   if let error = error {
-        //     // An error happened.
-        //   } else {
-        //     // Account deleted.
-        //   }
-        // }
-
-
-        // const auth = getAuth();
-        // const user = auth.currentUser;
-        
-        // deleteUser(user)
-        // .then(() => {
-        //     console.log('탈퇴되었습니다');
-        // })
-        // .catch((err) => {
-        //     console.log(err);
-        // })
-
     // nickname 변수를 ReNameScreen에 전달해서 수정할 순 없을까? (그렇다면 refresh 없이도 자동 업데이트 가능)
     // 사용 x
     const updateNickname = () => {
-      // nickname = auth().currentUser.displayName
-      // useEffect( () => {
-        setNickname(auth().currentUser.displayName)
-      // })
+      setNickname(auth().currentUser.displayName)
       console.log('닉네임 수정 완료', nickname)
     }
     

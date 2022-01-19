@@ -75,7 +75,7 @@ export default SettingsScreen = (props) => {
                                 <Text style={styles.panelTitle}>Edit Profile</Text>
                                 <Text style={styles.panelSubtitle}>버튼을 눌러 선택하세요!</Text>
                             </View>
-                            <TouchableOpacity style={styles.panelButton} onPress={() => props.navi.navigate('ReName')}>
+                            <TouchableOpacity style={styles.panelButton} onPress={() => props.navi.navigate('ReName')}> 
                                 <Text style={styles.panelButtonTitle}>이름 수정</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.panelButton} onPress={() => {props.importFromCamera()}}>
