@@ -35,23 +35,26 @@ export default SelectStartDate = (props) => {
 
     useEffect(() => {
         auth().onAuthStateChanged(user => {
-          if (user) {
-            setUser(user);
-            users
-        .where('nickname', '==', user["displayName"])
-        .get()
-        .then(querySnapshot => {
-            querySnapshot.forEach(function(doc) {
-                setUserGrade(doc.data()["grade"])
-              })
-            })
-          }
-          else {
-            setUser(null)
-          }
+            if (user) {
+                setUser(user);
+                users
+                .where('nickname', '==', user["displayName"])
+                .get()
+                .then(querySnapshot => {
+                    console.log('닉네임 검색 완료')
+                    querySnapshot.forEach(function(doc) {
+                        setUserGrade(doc.data()["grade"])
+                        console.log(userGrade)
+                    })
+                })
+                .catch((err) => {console.log('err', err)})
+            }
+            else {
+                setUser(null)
+            }
         })
-      });
-      
+    }, []);
+        
       
     
     LocaleConfig.locales['fr'] = {
@@ -98,7 +101,7 @@ export default SelectStartDate = (props) => {
             <Text style={styles.title}>종료 날짜</Text>
 
             <Text style={styles.subTitle}>종료되는 날짜를 정해주세요.</Text>
-            <Text style={styles.subTitle}>{current}</Text>
+            {/* <Text style={styles.subTitle}>{current}</Text> */}
         </View>
 
         <View style={styles.inputWrapper}>
@@ -114,41 +117,39 @@ export default SelectStartDate = (props) => {
             markedDates={markedDates}
         />
 
-            <TouchableOpacity style={[{marginTop: 30, marginBottom: 100, alignItems: 'center', justifyContent: 'center'}]} onPress={() => { 
-              console.log(user['displayName'])
-              if(startDate){
-                post
-                .add({
-                  category: category,
-                  content: content,
-                  date: firestore.FieldValue.serverTimestamp(), // firestore 서버 시간
-                  price: price,
-                  process: "regist", // regist, matching, finished
-                  title: firestore.FieldValue.arrayUnion('마트', '장'), //title,
-                  writer : user["displayName"], 
-                  writergrade: 3.8, //userGrade,   // user grade
-                  endDate: new Date(endDate),
-                })
-                .then(() => {
-                    props.navigation.navigate("Home")
-                    console.log('post added!');
-                })
-                .catch(error => {console.error(error);})
-                
-
-                //props.navigation.navigate('SelectStartTime', {category: category, price: price, title: title, content: content, startDate: startDate,  })
-              }
-              else{
-                alert("선택해 주세요.")
-              }
-            }}>
-                <Text>{startDate}</Text>
-            <Image
-              style = {styles.item}
-              source={require('../../assets/img/Ok.png')}
-              
-            />
-          </TouchableOpacity>
+            <TouchableOpacity 
+                style={[{marginTop: 30, marginBottom: 100, alignItems: 'center', justifyContent: 'center'}]} 
+                onPress={() => { 
+                    if(startDate){
+                        post
+                        .add({
+                        category: category,
+                        content: content,
+                        date: firestore.FieldValue.serverTimestamp(), // firestore 서버 시간
+                        price: price,
+                        process: "regist", // regist, matching, finished
+                        title: firestore.FieldValue.arrayUnion(title, 'xcxc'), //title,
+                        writer : user["displayName"], 
+                        writergrade: userGrade,    // user grade
+                        endDate: new Date(endDate),
+                        })
+                        .then(() => {
+                            props.navigation.navigate("Tab")
+                            console.log('post added!');
+                        })
+                        .catch(error => {console.error(error);})
+                    //props.navigation.navigate('SelectStartTime', {category: category, price: price, title: title, content: content, startDate: startDate,  })
+                    }
+                    else {
+                        alert("선택해 주세요.")
+                    }
+                }}>
+                {/* <Text>게시글 올리기</Text> */}
+                <Image
+                    style = {styles.item}
+                    source={require('../../assets/img/Ok.png')}
+                />
+            </TouchableOpacity>
         </View>
       </View>
     </Container>

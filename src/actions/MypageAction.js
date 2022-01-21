@@ -1,16 +1,23 @@
 import React, {useState, useEffect} from 'react'
-import Setting from '../screens/SettingsScreen'
+import Mypage from '../screens/MypageScreen'
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker'; // Migration from 2.x.x to 3.x.x => showImagePicker API is removed.
 
-export default SetingsActions = (props) => {
+export default MypageActions = (props) => {
     console.log('설정 액션 화면입니다')
     let email = auth().currentUser.email
     const [nickname, setNickname] = useState(null)
     const [url, setUrl] = useState(null)
 
+    const signOut = () => {
+      auth()
+      .signOut()
+      .then(() => {
+          console.log('User signed out!');
+      });
+    }
 
     const nicknameReg  =  /^[\w\Wㄱ-ㅎㅏ-ㅣ가-힣]{2,20}$/
     const options = {
@@ -128,7 +135,7 @@ export default SetingsActions = (props) => {
         })
     }
     
-    return <Setting 
+    return <Mypage 
                 email={email} 
                 nickname={nickname} 
                 navi={props.navigation}
@@ -138,6 +145,7 @@ export default SetingsActions = (props) => {
                 updateNickname = {updateNickname}
                 downloadImg = {downloadImg}
                 withdrawal = {withdrawal}
+                signOut = {signOut}
 
             /> //{...contactData} {...props} 
 }

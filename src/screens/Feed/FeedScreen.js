@@ -6,8 +6,9 @@ import FIcon from 'react-native-vector-icons/FontAwesome';
 import firestore from '@react-native-firebase/firestore';
 import Moment from 'moment';
 import 'moment/locale/ko';
+import { FAB } from 'react-native-paper';
 
-import Container from '../components/Container';
+import Container from '../../components/Container';
 
 // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -85,8 +86,8 @@ const renderItem = ({ item }) => {
 
                 {/* 제목, 내용, 금액 */}
                 <View style={{flex: 3.8, flexDirection: 'column', marginRight: 15, alignSelf: 'center'}}>
-                    <Text style={{fontSize: 15, fontWeight: '600', color: '#090909', marginBottom: 7}}>
-                        {item.title.join(' ')}
+                    <Text style={{fontSize: 15, fontWeight: '600', color: '#090909', marginBottom: 7}} numberOfLines={1} ellipsizeMode="tail">
+                            {item.title.join(' ')}
                     </Text>
                     <Text style={{fontSize: 14, color: '#89888c', marginBottom: 12}} numberOfLines={1} ellipsizeMode="tail">
                         {item.content}
@@ -123,16 +124,10 @@ export default HomeScreen = (props) => {
 
     const isDarkMode = useColorScheme() === 'dark';
 
-    const textInput = useRef();
 
     const [selectedId, setSelectedId] = useState(1);
 
-    const [keyword, setKeyword] = useState('');
-    // 검색 내용이 바뀔때마다 실행
-    useEffect(() => {
-        props.searchKeyword(keyword)
-    }, [keyword])
-    
+
 
     const categories = [
         {id: 1, text: '전체보기', icon: 'bars'},
@@ -161,7 +156,6 @@ export default HomeScreen = (props) => {
                 onPress={() => {
                     setSelectedId(item.id)
                     props.selectCategory(item.text);
-                    textInput.current.clear();
                 }}
                 item={item}
             />
@@ -185,32 +179,19 @@ export default HomeScreen = (props) => {
                         contentContainerStyle={{padding: 20}}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
-                        keyExtractor={item => item.id}
+                        keyExtractor={(item, index) => String(index)}
                         data={categories}
                         renderItem={renderCategoryBox}
                         extraData={selectedId}
                     />
+                    <View style={styles.filter} >
+                        <TouchableOpacity style={styles.filterButton} activeOpacity={0.5} onPress={() => console.log('pressed')}>
+                            <FIcon name='filter' size={30} color="white" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <View style={styles.boardView}>
-                    {/* 텍스트 입력(검색) */}
-                    <View style={styles.search} >
-                        <TextInput
-                            style={styles.searchBox}
-                            placeholder="search"
-                            value={keyword}
-                            onChangeText={text => setKeyword(text)}
-                            autoCapitalize='none'
-                            autoCorrect={false}
-                            clearButtonMode="always"
-                            ref={textInput}
-                            />
-                    </View>
-                    <View>
-                        <TouchableOpacity onPress={() => {navigation.navigate('WritePost')}}>
-                            <Text>게시글 작성</Text>
-                        </TouchableOpacity>
-                    </View>
                     {/* 게시글 목록 */}
                     <FlatList 
                         keyExtractor={item => item.key}
@@ -220,12 +201,28 @@ export default HomeScreen = (props) => {
                         ListFooterComponent={renderFooter}
                         onEndReached={!props.isListEnd && props.getMoreFeed}
                     />
+                    <FAB
+                        style={styles.postButton}
+                        color="#fff"
+                        large
+                        icon="pencil"
+                        onPress={() => {props.navi.navigate('SelectCategory')}}
+                    />
                 </View>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    filter: {
+        position: 'absolute',
+        right: 28, 
+        bottom: 10,
+    },
+    filterButton: {
+        flexDirection: 'row',
+        backgroundColor: 'tranparent',
+    },
     container: {
         flex: 1,
         backgroundColor: '#53B77C',
@@ -251,21 +248,16 @@ const styles = StyleSheet.create({
     boardView: {
         flex: Platform.OS === 'ios' ? 2.6 : 2,
         backgroundColor: '#EDF1F5',
-        padding: 12,
+        paddingHorizontal: 12,
         paddingTop: 40,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
-    search: {
+    postButton: {
         position: 'absolute',
-        top: -25, 
-        left: 25,
-        right: 25, 
-    },
-    searchBox: {
-        backgroundColor: '#fff',
-        padding: Platform.OS === "ios" ? 15 : 12,
-        fontSize: 16,
-        borderRadius: 30,
+        margin: 16,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#1bb55a',
     },
 });
